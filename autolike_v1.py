@@ -2,14 +2,14 @@ import asyncio
 import json
 import logging
 import httpx
-import pytz
-from datetime import datetime, date, timedelta, time
+import pytz 
+from datetime import datetime, date, timedelta, time 
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes
 
 # --- Configuration (Ager Information Ongsho) ---
 # Token o Group ID ager-barer dewa-tai ache
-BOT_TOKEN = "8024225954:AAF5lQ_L5GYCORO2Ulr4Nm7l9oM_uV8EdXk"
+BOT_TOKEN = "8024225954:AAF5lQ_L5GYCORO2Ulr4Nm7l9oM_uV8EdXk" 
 ADMIN_USER_ID = 2098068100
 ALLOWED_GROUP_ID = -4835590895
 # --------------------------------------------------------
@@ -18,18 +18,14 @@ ALLOWED_GROUP_ID = -4835590895
 BD_TIMEZONE = pytz.timezone("Asia/Dhaka") # Bangladesh Time (GMT+6)
 
 # Fallback time (jodi config.json na thake ba /settime use na kora hoy)
-DEFAULT_SCHEDULED_HOUR_BD = 7
+DEFAULT_SCHEDULED_HOUR_BD = 4
 DEFAULT_SCHEDULED_MINUTE_BD = 0
 # ----------------------------------------
 
 JSON_FILE = "uids.json"
 CONFIG_FILE = "config.json" # <-- NOTUN FILE: Schedule time save korar jonno
-
-# --- API Configuration Update ---
-API_BASE_URL = "https://yunus-bhai-like-ff.vercel.app/"
-REGION = "bd"   # <-- PORIBORTON: 'SERVER_NAME' theke 'REGION'
-API_KEY = "gst" # <-- NOTUN: Apnar dewa key
-# ------------------------------
+API_BASE_URL = "https://raigen-s-like-bot-eta.vercel.app/like"
+SERVER_NAME = "bd"
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
@@ -74,13 +70,7 @@ def save_config(config_data):
 
 async def fetch_player_data(uid):
     """Diye dewa UID-er jonno like API-te call korbe, browser header shoho."""
-    
-    # <-- PORIBORTON: Notun API-er jonno params update kora hoyeche
-    params = {
-        "uid": uid, 
-        "region": REGION,
-        "key": API_KEY
-    }
+    params = {"uid": uid, "server_name": SERVER_NAME}
     
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36",
@@ -93,7 +83,6 @@ async def fetch_player_data(uid):
     try:
         async with httpx.AsyncClient(headers=headers, follow_redirects=True) as client:
             logger.info(f"Fetching data for UID {uid} from {API_BASE_URL}")
-            # Ekhon notun params shoho call korbe
             response = await client.get(API_BASE_URL, params=params, timeout=30.0)
             response_text = response.text 
             
@@ -104,10 +93,10 @@ async def fetch_player_data(uid):
                 try:
                     data = json.loads(response_text)
                 except json.JSONDecodeError:
-                    logger.error(f"Failed to decode non-JSON response for UID {uid}.")
-                    return {"status": -1, "error": "API Error: Not JSON", "UID": uid, "PlayerNickname": "Unknown"}
+                     logger.error(f"Failed to decode non-JSON response for UID {uid}.")
+                     return {"status": -1, "error": "API Error: Not JSON", "UID": uid, "PlayerNickname": "Unknown"}
             else:
-                data = response.json() 
+                 data = response.json() 
             
             if response.status_code == 200 and data.get("status") == 1:
                 logger.info(f"Successfully fetched data for UID {uid}")
@@ -116,7 +105,7 @@ async def fetch_player_data(uid):
                 logger.warning(f"API call failed for UID {uid}. Status: {response.status_code}, JSON Response: {data}")
                 error_msg = data.get("error", "API Error")
                 if 'PlayerNickname' in data: 
-                    return {"status": -1, "error": error_msg, "UID": uid, "PlayerNickname": data.get("PlayerNickname", "Unknown")}
+                     return {"status": -1, "error": error_msg, "UID": uid, "PlayerNickname": data.get("PlayerNickname", "Unknown")}
                 return {"status": -1, "error": error_msg, "UID": uid, "PlayerNickname": "Unknown"}
                 
     except httpx.ConnectError as e:
@@ -177,7 +166,7 @@ async def add_uid(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Notun UID add korbe ebong expiry date set korbe."""
     if not is_admin_in_allowed_group(update):
         if update.effective_chat.id == ALLOWED_GROUP_ID:
-            await update.message.reply_text("Sorry, shudhu Admin ei command use korte parbe.")
+             await update.message.reply_text("Sorry, shudhu Admin ei command use korte parbe.")
         return
 
     try:
@@ -245,7 +234,7 @@ async def remove_uid(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Serial number diye UID remove korar command."""
     if not is_admin_in_allowed_group(update):
         if update.effective_chat.id == ALLOWED_GROUP_ID:
-            await update.message.reply_text("Sorry, shudhu Admin ei command use korte parbe.")
+             await update.message.reply_text("Sorry, shudhu Admin ei command use korte parbe.")
         return
 
     try:
@@ -275,7 +264,7 @@ async def extend_uid(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Kono UID-er meyed (validity) baranor command. (EI FUNCTION-E API CALL HOY NA)"""
     if not is_admin_in_allowed_group(update):
         if update.effective_chat.id == ALLOWED_GROUP_ID:
-            await update.message.reply_text("Sorry, shudhu Admin ei command use korte parbe.")
+             await update.message.reply_text("Sorry, shudhu Admin ei command use korte parbe.")
         return
 
     try:
@@ -324,7 +313,7 @@ async def list_uids(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Shob saved UID-er list dekhabe (expiry date shoho)."""
     if not is_admin_in_allowed_group(update):
         if update.effective_chat.id == ALLOWED_GROUP_ID:
-            await update.message.reply_text("Sorry, shudhu Admin ei command use korte parbe.")
+             await update.message.reply_text("Sorry, shudhu Admin ei command use korte parbe.")
         return
 
     uids_data = load_uids()
@@ -470,7 +459,7 @@ async def send_likes_command(update: Update, context: ContextTypes.DEFAULT_TYPE)
     """ /m command. Shudhu *valid* UID-gulote like pathabe. """
     if not is_admin_in_allowed_group(update):
         if update.effective_chat.id == ALLOWED_GROUP_ID:
-            await update.message.reply_text("Sorry, shudhu Admin ei command use korte parbe.")
+             await update.message.reply_text("Sorry, shudhu Admin ei command use korte parbe.")
         return
 
     if processing_lock.locked():
@@ -495,7 +484,7 @@ async def set_time(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Automatic job-er time set korbe ebong job-ti reschedule korbe."""
     if not is_admin_in_allowed_group(update):
         if update.effective_chat.id == ALLOWED_GROUP_ID:
-            await update.message.reply_text("Sorry, shudhu Admin ei command use korte parbe.")
+             await update.message.reply_text("Sorry, shudhu Admin ei command use korte parbe.")
         return
 
     try:
@@ -515,9 +504,9 @@ async def set_time(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # 1. Purono job remove kora
     current_jobs = context.job_queue.get_jobs_by_name(job_name)
     if not current_jobs:
-        await update.message.reply_text("Error: Could not find the running job to reschedule. Restarting the bot might fix this.")
-        return
-        
+         await update.message.reply_text("Error: Could not find the running job to reschedule. Restarting the bot might fix this.")
+         return
+         
     for job in current_jobs:
         job.schedule_removal()
         logger.info(f"Removed old job: {job_name}")
